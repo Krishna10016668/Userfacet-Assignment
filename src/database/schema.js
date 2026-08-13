@@ -211,6 +211,81 @@ function initializeDatabase() {
       )
     `).run();
 
+    // 15. Create Tags table (Feature: Multi-Dimensional Book Taxonomies)
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS tags (
+        id TEXT PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        description TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `).run();
+
+    // 16. Create Book Tags junction table (Many-to-Many Book-Tag Relationship)
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS book_tags (
+        id TEXT PRIMARY KEY,
+        book_id TEXT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+        tag_id TEXT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(book_id, tag_id)
+      )
+    `).run();
+
+    // 17. Create User Badges table (Feature: Reading Gamification & Milestones)
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS user_badges (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        badge_key TEXT NOT NULL,
+        badge_name TEXT NOT NULL,
+        badge_description TEXT NOT NULL,
+        icon TEXT NOT NULL DEFAULT '🏆',
+        unlocked_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(user_id, badge_key)
+      )
+    `).run();
+
+    // 18. Create Reading Streaks table (Feature: Daily Consecutive Reading Streaks)
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS reading_streaks (
+        id TEXT PRIMARY KEY,
+        user_id TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        current_streak_days INTEGER NOT NULL DEFAULT 0,
+        longest_streak_days INTEGER NOT NULL DEFAULT 0,
+        last_activity_date TEXT,
+        total_active_days INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `).run();
+
+    // 19. Create Book Clubs table (Feature: Collaborative Book Clubs & Reading Circles)
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS book_clubs (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        organizer_id TEXT NOT NULL REFERENCES users(id),
+        current_book_id TEXT REFERENCES books(id),
+        is_private INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `).run();
+
+    // 20. Create Club Members junction table
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS club_members (
+        id TEXT PRIMARY KEY,
+        club_id TEXT NOT NULL REFERENCES book_clubs(id) ON DELETE CASCADE,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        role TEXT NOT NULL DEFAULT 'MEMBER' CHECK(role IN ('ORGANIZER', 'MEMBER')),
+        joined_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(club_id, user_id)
+      )
+    `).run();
+
     // Create Indexes
     db.prepare('CREATE INDEX IF NOT EXISTS idx_books_author ON books(author_id)').run();
     db.prepare('CREATE INDEX IF NOT EXISTS idx_books_category ON books(category_id)').run();
@@ -229,6 +304,14 @@ function initializeDatabase() {
     db.prepare('CREATE INDEX IF NOT EXISTS idx_audit_log_actor ON audit_log(actor_id)').run();
     db.prepare('CREATE INDEX IF NOT EXISTS idx_audit_log_entity ON audit_log(entity_type, entity_id)').run();
     db.prepare('CREATE INDEX IF NOT EXISTS idx_audit_log_created ON audit_log(created_at)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_tags_slug ON tags(slug)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_book_tags_book ON book_tags(book_id)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_book_tags_tag ON book_tags(tag_id)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_user_badges_user ON user_badges(user_id)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_reading_streaks_user ON reading_streaks(user_id)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_book_clubs_organizer ON book_clubs(organizer_id)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_club_members_club ON club_members(club_id)').run();
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_club_members_user ON club_members(user_id)').run();
   });
 
   initializeSchema();

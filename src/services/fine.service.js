@@ -182,6 +182,79 @@ class FineService {
 
     return result.total || 0;
   }
+
+  /**
+   * Calculates dynamic overdue fine based on grace periods, tiered rates, and book value ceilings.
+   * 
+   * Policy Rules:
+   * 1. 3-Day Grace Period: Overdue days 1-3 result in ₹0 fine.
+   * 2. Tier 1 (Days 4-10): Charged at ₹2.00 per day.
+   * 3. Tier 2 (Days 11+): Charged at ₹5.00 per day for escalated lateness.
+   * 4. Value Cap: Total fine cannot exceed the replacement value ceiling (defaults to ₹250.00).
+   * 
+   * @param {string|Date} dueDate - The scheduled due date of the borrow
+   * @param {string|Date} [returnDate] - The actual return date (defaults to current timestamp)
+   * @param {number} [bookValueCeiling] - Maximum fine cap based on book replacement value
+   * @returns {Object} Calculated fine breakdown
+   */
+  static calculateDynamicOverdueFine(dueDate, returnDate = new Date(), bookValueCeiling = null) {
+    const dueTime = new Date(dueDate).getTime();
+    const returnTime = new Date(returnDate).getTime();
+
+    if (returnTime <= dueTime) {
+      return {
+        overdue_days: 0,
+        in_grace_period: true,
+        fine_amount: 0,
+        policy_applied: 'ON_TIME',
+        capped: false
+      };
+    }
+
+    const elapsedMilliseconds = returnTime - dueTime;
+    const overdueDays = Math.ceil(elapsedMilliseconds / (1000 * 60 * 60 * 24));
+
+    // 1. Check Grace Period
+    const gracePeriodDays = 3;
+    if (overdueDays <= gracePeriodDays) {
+      return {
+        overdue_days: overdueDays,
+        in_grace_period: true,
+        fine_amount: 0,
+        policy_applied: 'GRACE_PERIOD_WAIVED',
+        capped: false
+      };
+    }
+
+    // 2. Tiered Calculation
+    const billableDays = overdueDays - gracePeriodDays;
+    let rawFineAmount = 0;
+
+    if (billableDays <= 7) {
+      // Days 4 to 10: ₹2.00/day
+      rawFineAmount = billableDays * 2.0;
+    } else {
+      // First 7 billable days at ₹2.00, remaining at ₹5.00
+      const tier1Amount = 7 * 2.0;
+      const tier2Days = billableDays - 7;
+      const tier2Amount = tier2Days * 5.0;
+      rawFineAmount = tier1Amount + tier2Amount;
+    }
+
+    // 3. Value Cap Rule (Safety ceiling)
+    const maximumCap = bookValueCeiling || 250.0;
+    const finalFineAmount = Math.min(rawFineAmount, maximumCap);
+    const isCapped = rawFineAmount > maximumCap;
+
+    return {
+      overdue_days: overdueDays,
+      in_grace_period: false,
+      fine_amount: parseFloat(finalFineAmount.toFixed(2)),
+      raw_amount: parseFloat(rawFineAmount.toFixed(2)),
+      policy_applied: isCapped ? 'VALUE_CAPPED' : 'TIERED_RATE',
+      capped: isCapped
+    };
+  }
 }
 
 module.exports = FineService;

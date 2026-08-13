@@ -59,6 +59,14 @@ class BorrowService {
     });
     
     tx();
+
+    // Record activity for streaks and milestone badges
+    try {
+      const gamificationService = require('./gamification.service');
+      gamificationService.recordUserActivity(userId, 'BORROW');
+    } catch (e) {
+      console.error('[Gamification] Error recording activity:', e.message);
+    }
     
     // Log audit trail
     auditService.logAction({
@@ -108,9 +116,12 @@ class BorrowService {
       // 2. Increment book copies
       db.prepare('UPDATE books SET available_copies = available_copies + 1, updated_at = ? WHERE id = ?').run(now, record.book_id);
       
-      // 3. Process fine if overdue
-      if (overdueDays > 0) {
-        fineAmount = calculateFine(overdueDays, config.FINE_RATE_PER_DAY || 2);
+      // 3. Process fine if overdue using real-world policy engine (grace period + tiered rate + value cap)
+      const fineService = require('./fine.service');
+      const fineResult = fineService.calculateDynamicOverdueFine(record.due_date, now);
+      fineAmount = fineResult.fine_amount;
+
+      if (fineAmount > 0) {
         const fineId = generateUUID();
         db.prepare(`
           INSERT INTO fines (id, user_id, borrow_record_id, amount, status, created_at)
@@ -141,6 +152,14 @@ class BorrowService {
     });
     
     tx();
+
+    // Record activity for streaks and badges
+    try {
+      const gamificationService = require('./gamification.service');
+      gamificationService.recordUserActivity(record.user_id, 'RETURN');
+    } catch (e) {
+      console.error('[Gamification] Error recording activity:', e.message);
+    }
     
     // Log audit trail
     auditService.logAction({

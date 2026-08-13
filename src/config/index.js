@@ -23,9 +23,9 @@ const config = {
   RESERVATION_EXPIRY_HOURS: 48,
   SUMMARY_CACHE_DAYS: 30,
   RATE_LIMIT: {
-    GENERAL: { windowMs: 15 * 60 * 1000, max: 100 },
-    AUTH: { windowMs: 15 * 60 * 1000, max: 20 },
-    AI: { windowMs: 15 * 60 * 1000, max: 10 }
+    GENERAL: { windowMs: 15 * 60 * 1000, max: parseInt(process.env.RATE_LIMIT_GENERAL_MAX, 10) || 200 },
+    AUTH: { windowMs: 15 * 60 * 1000, max: parseInt(process.env.RATE_LIMIT_AUTH_MAX, 10) || 50 },
+    AI: { windowMs: 15 * 60 * 1000, max: parseInt(process.env.RATE_LIMIT_AI_MAX, 10) || 100 }
   }
 };
 

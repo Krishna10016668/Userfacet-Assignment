@@ -7,7 +7,7 @@
 [![Flask](https://img.shields.io/badge/Flask-Microservice-000000.svg?style=flat&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A production-ready, dual-service backend architecture engineered for digital libraries. The system combines an **Express.js API Gateway** managing high-throughput CRUD and business logic with a **Python Flask AI Microservice** powering intelligent book analysis, semantic recommendation algorithms, literary personality profiling, interactive conversational Q&A, natural language mood matchmaking, comprehension quiz generation, review sentiment digests, reading curriculum design, and velocity-based reading progress analytics.
+A production-ready, dual-service backend architecture engineered for digital libraries. The system combines an **Express.js API Gateway** managing high-throughput circulation, fine policies, book clubs, taxonomies, and gamification with a **Python Flask AI Microservice** powering intelligent book summaries, semantic recommendations, reader personality profiling, conversational Q&A, natural language mood matchmaking, comprehension quizzes, and reading curriculum generation.
 
 ---
 
@@ -18,12 +18,12 @@ A production-ready, dual-service backend architecture engineered for digital lib
 3. [Quick Start & Installation](#-quick-start--installation)
 4. [User Roles & Security (RBAC)](#-user-roles--security-rbac)
 5. [Core Domain Features](#-core-domain-features)
-6. [🌟 10 Advanced & Innovative Features](#-10-advanced--innovative-features)
+6. [🌟 14 Unique Features](#-14-unique-features)
 7. [AI Microservice & Caching Engine](#-ai-microservice--caching-engine)
 8. [Automated Background Cron Scheduler](#-automated-background-cron-scheduler)
 9. [Comprehensive REST API Reference](#-comprehensive-rest-api-reference)
-10. [Database Schema & Performance (14 Tables)](#-database-schema--performance-14-tables)
-11. [Automated Integration Test Suite (25 Steps)](#-automated-integration-test-suite-25-steps)
+10. [Database Schema & Performance (20 Tables)](#-database-schema--performance-20-tables)
+11. [Automated Integration Test Suite (30 Steps)](#-automated-integration-test-suite-30-steps)
 12. [Project Structure Map](#-project-structure-map)
 
 ---
@@ -41,9 +41,9 @@ The application is structured into two decoupled microservices sharing a common 
 ┌─────────────────────────────────────────────────────┴───────────────────┐
 │              NODE.JS REST API GATEWAY & CORE (Port 3000)                │
 │  ├── Security: Helmet, CORS, Rate Limiters, Bcrypt (12 Rounds), JWT     │
-│  ├── Controllers & Services: Books, Borrows, Returns, Fines, Users      │
-│  ├── Advanced Modules: Progress Tracker, Audit Trail, Bulk CSV Importer │
-│  ├── AI Gateways: Mood Matcher, Ask Book, Quiz, Reviews Digest, Syllabus│
+│  ├── Domain Logic: Books, Borrows, Returns, Fines, Reservations, Tags   │
+│  ├── Engagement: Daily Streaks, Milestone Badges, Digital Book Clubs    │
+│  ├── Real-World Policies: 3-Day Grace Periods, Tiered Fines, Value Caps │
 │  ├── Data Validation: Joi Schema Layer on all Payloads                  │
 │  └── Automated Jobs: Node-Cron Overdue & Reservation Sweeps             │
 └───────────────────┬─────────────────────────────────▲───────────────────┘
@@ -65,7 +65,7 @@ The application is structured into two decoupled microservices sharing a common 
                                      ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │               SHARED SQLITE DATABASE (data/library.db)                  │
-│       14 Normalized Tables · 17 Optimized Indexes · WAL Enabled        │
+│       20 Normalized Tables · 25 Optimized Indexes · WAL Enabled        │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -179,13 +179,13 @@ The system implements Role-Based Access Control enforced by the `authorize(...ro
 
 | Role | Default Email | Default Password | Access Level & Permissions |
 | :--- | :--- | :--- | :--- |
-| **ADMIN** | `admin@library.com` | `admin123` | Full unrestricted administrative access. User deactivation, fine waivers, enterprise audit log inspection, transactional bulk CSV imports. |
-| **LIBRARIAN** | `librarian@library.com` | `lib123` | Inventory management. Adding/updating books, author/category management, overdue borrowing reports, circulation analytics. |
-| **MEMBER** | `member@library.com` | `member123` | Patron access. Catalog search, borrowing, reading progress tracking, AI summaries/insights/Q&A/mood-matching/quizzes, reviews (with verification gate), reading lists. |
+| **ADMIN** | `admin@library.com` | `admin123` | Full unrestricted administrative access. User deactivation, fine waivers, enterprise audit log inspection, transactional bulk CSV imports, taxonomy tag creation. |
+| **LIBRARIAN** | `librarian@library.com` | `lib123` | Inventory management. Adding/updating books, tag management, author/category management, overdue reports, circulation analytics. |
+| **MEMBER** | `member@library.com` | `member123` | Patron access. Catalog search, borrowing, reading progress tracking, book clubs, badges & streaks, AI summaries/insights/Q&A/mood-matching/quizzes, reviews, reading lists. |
 
 ---
 
-## 🌟 10 Advanced & Innovative Features
+## 🌟 14 Unique Features
 
 ### 1. 📖 Reading Progress Tracker & Velocity/ETA Forecaster
 - **Live Velocity Calculation**: Measures real-time reading speed in **Pages Per Hour (PPH)**:
@@ -241,6 +241,31 @@ The system implements Role-Based Access Control enforced by the `authorize(...ro
 - **Step-by-Step Path**: Includes learning objectives, key takeaways, and difficulty progression.
 - **Endpoint**: `POST /api/reading-lists/ai-curate`
 
+### 11. 🏆 Reading Streaks & Milestone Badges Engine
+- **Consecutive Reading Streaks**: Automatically tracks daily reading consistency in `reading_streaks`.
+- **Milestone Achievements**: Event-driven evaluation for badges:
+  - 🦉 *Night Owl*: Activity between 11 PM – 4 AM.
+  - ⚡ *Speed Demon*: Reading velocity $\ge 80$ pages/hour.
+  - 🌍 *Genre Explorer*: Borrowed from $\ge 3$ distinct genres.
+  - 📚 *Avid Reader*: $\ge 3$ books completed and returned.
+  - 🔥 *Streak Champion*: Active streak of $\ge 3$ days.
+- **Endpoints**: `GET /api/users/my-badges`, `GET /api/users/reading-streak`
+
+### 12. 🏷️ Multi-Dimensional Book Taxonomies & Tagging
+- **Faceted Tag Filtering**: Relational many-to-many book tagging (`#award-winner`, `#classic`, `#dystopian`).
+- **Tag-Based Search**: Query catalog by tag slug (`GET /api/books?tag=award-winner`).
+- **Endpoints**: `GET /api/tags`, `POST /api/tags`, `GET /api/tags/book/:bookId`, `POST /api/tags/book/:bookId`
+
+### 13. 💸 Dynamic Fine Policies (3-Day Grace Period & Value Caps)
+- **3-Day Grace Period**: Days 1–3 overdue are waived (Fine = ₹0).
+- **Tiered Rates**: Days 4–10 charged at ₹2/day; Days 11+ charged at ₹5/day.
+- **Safety Ceiling Cap**: Fines are capped at the replacement value ceiling (defaults to ₹250).
+
+### 14. 👥 Digital Book Clubs & Community Reading Circles
+- **Collaborative Reading**: Patrons create reading clubs, designate an organizer, and set a *"Book of the Month"*.
+- **Progress Leaderboard**: Aggregates collective member completion percentages on the active club book.
+- **Endpoints**: `POST /api/clubs`, `GET /api/clubs`, `GET /api/clubs/:id`, `POST /api/clubs/:id/join`, `PUT /api/clubs/:id/current-book`, `GET /api/clubs/:id/progress`
+
 ---
 
 ## 🤖 AI Microservice & Caching Engine
@@ -284,13 +309,13 @@ Built using `node-cron` in [`src/cron/jobs.js`](file:///e:/Userfacet%20Assignmen
 | `GET` | `/api/auth/me` | Private | Get authenticated user profile & loan stats |
 | `PUT` | `/api/auth/change-password` | Private | Update current user password |
 
-### Books & AI Intelligence
+### Books, Taxonomies & AI Intelligence
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/books` | Public | Paginated books with filters (`category_id`, `author_id`, `language`, `available`) |
+| `GET` | `/api/books` | Public | Paginated books with filters (`category_id`, `author_id`, `tag`, `available`) |
 | `GET` | `/api/books/search?q=...` | Public | Full-text catalog search on title, author, description |
 | `GET` | `/api/books/popular` | Public | Top borrowed books ranked by checkout frequency |
-| `GET` | `/api/books/:id` | Public | Detailed book record with review count & average rating |
+| `GET` | `/api/books/:id` | Public | Detailed book record with review count, avg rating & tags |
 | `POST` | `/api/books/ai-match-mood` | Private | AI natural language mood & vibe book matchmaker |
 | `GET` | `/api/books/:id/summary` | Private | AI summary (`?type=brief\|detailed\|chapter_wise`) |
 | `GET` | `/api/books/:id/recommendations`| Private | AI-powered semantic book recommendations |
@@ -302,15 +327,33 @@ Built using `node-cron` in [`src/cron/jobs.js`](file:///e:/Userfacet%20Assignmen
 | `PUT` | `/api/books/:id` | Librarian/Admin | Update book record |
 | `DELETE`| `/api/books/:id` | Admin | Soft-delete book record |
 
+### Gamification & Book Clubs
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/users/my-badges` | Private | View unlocked & available milestone badges |
+| `GET` | `/api/users/reading-streak` | Private | View daily consecutive reading streak & tier |
+| `GET` | `/api/tags` | Public | List all tags with book count metrics |
+| `POST` | `/api/tags` | Librarian/Admin | Create new taxonomy tag |
+| `GET` | `/api/tags/book/:bookId` | Public | Get tags attached to a book |
+| `POST` | `/api/tags/book/:bookId` | Librarian/Admin | Attach tag to a book |
+| `DELETE`| `/api/tags/book/:bookId/:tagId`| Librarian/Admin | Detach tag from a book |
+| `POST` | `/api/clubs` | Private | Create a new book club (creator = Organizer) |
+| `GET` | `/api/clubs` | Public | List public book clubs with search & pagination |
+| `GET` | `/api/clubs/:id` | Public | View club details, members, and current book |
+| `POST` | `/api/clubs/:id/join` | Private | Join a book club |
+| `POST` | `/api/clubs/:id/leave` | Private | Leave a book club |
+| `PUT` | `/api/clubs/:id/current-book`| Private | Set Book of the Month (Organizer only) |
+| `GET` | `/api/clubs/:id/progress` | Private | View collective member reading progress |
+
 ### Circulation, Progress & Curriculum
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/borrows` | Private | Checkout book (enforces limits and fine blocks) |
-| `POST` | `/api/borrows/:id/return` | Private | Return book (calculates fines & fulfills queue) |
+| `POST` | `/api/borrows/:id/return` | Private | Return book (dynamic fine engine & queue fulfillment) |
 | `POST` | `/api/borrows/:id/renew` | Private | Renew loan (enforces max renewals & queue locks) |
 | `GET` | `/api/borrows` | Private | View active & past loan history |
 | `GET` | `/api/borrows/overdue` | Librarian/Admin | View all currently overdue loans |
-| `PUT` | `/api/reading-progress/:borrowId` | Private | Log reading progress (page count & notes) |
+| `PUT` | `/api/reading-progress/:borrowId` | Private | Log reading progress (velocity & ETA calculation) |
 | `GET` | `/api/reading-progress/:borrowId` | Private | View progress, reading speed, and ETA |
 | `GET` | `/api/reading-progress/my-stats` | Private | Reader statistics dashboard |
 | `GET` | `/api/insights/my-profile` | Private | Generate AI reader persona & recommendations |
@@ -346,7 +389,7 @@ Built using `node-cron` in [`src/cron/jobs.js`](file:///e:/Userfacet%20Assignmen
 
 ---
 
-## 🗄️ Database Schema & Performance (14 Tables)
+## 🗄️ Database Schema & Performance (20 Tables)
 
 SQLite runs with `PRAGMA journal_mode = WAL` and `PRAGMA foreign_keys = ON`.
 
@@ -365,11 +408,17 @@ reading_list_items (id, reading_list_id, book_id, position, added_at) [UNIQUE: r
 notifications (id, user_id, title, message, type, is_read, created_at)
 reading_progress (id, borrow_id, user_id, book_id, current_page, total_pages, percentage, reading_speed_pph, estimated_hours_remaining, notes, created_at, updated_at) [UNIQUE: borrow_id]
 audit_log (id, actor_id, actor_role, action, entity_type, entity_id, details, ip_address, created_at)
+tags (id, name, slug, description, created_at)
+book_tags (id, book_id, tag_id, created_at) [UNIQUE: book_id, tag_id]
+user_badges (id, user_id, badge_key, badge_name, badge_description, icon, unlocked_at) [UNIQUE: user_id, badge_key]
+reading_streaks (id, user_id, current_streak_days, longest_streak_days, last_activity_date, total_active_days, updated_at) [UNIQUE: user_id]
+book_clubs (id, name, description, organizer_id, current_book_id, is_private, created_at, updated_at)
+club_members (id, club_id, user_id, role, joined_at) [UNIQUE: club_id, user_id]
 ```
 
 ---
 
-## 🧪 Automated Integration Test Suite (25 Steps)
+## 🧪 Automated Integration Test Suite (30 Steps)
 
 Execute the end-to-end integration test suite:
 
@@ -377,7 +426,7 @@ Execute the end-to-end integration test suite:
 node tests/api.test.js
 ```
 
-### Verified Scenarios
+### Verified Scenarios (30 Steps)
 - ✅ **Step 1**: System Health & Version Verification
 - ✅ **Step 2**: Member Authentication & Token Generation
 - ✅ **Step 3**: Admin Authentication & RBAC Verification
@@ -403,6 +452,11 @@ node tests/api.test.js
 - ✅ **Step 23**: AI Book Comprehension Quiz & Trivia Generator
 - ✅ **Step 24**: AI Community Review Digest & Sentiment Analysis
 - ✅ **Step 25**: AI Personalized Reading Curriculum & Syllabus Generator
+- ✅ **Step 26**: Dynamic Fine Policy with 3-Day Grace Period & Value Caps
+- ✅ **Step 27**: Multi-Dimensional Book Tagging & Taxonomy Filtering
+- ✅ **Step 28**: Reading Streaks & Milestone Badges Engine
+- ✅ **Step 29**: Digital Book Clubs & Community Reading Circles
+- ✅ **Step 30**: Book Club Reading Progress & Member Leaderboard
 
 ---
 
@@ -424,17 +478,17 @@ Userfacet-Assignment/
 │   ├── config/index.js           — Centralized configuration loader
 │   ├── database/
 │   │   ├── connection.js         — SQLite singleton connection (WAL mode)
-│   │   ├── schema.js             — DDL definitions for 14 tables & 17 indexes
+│   │   ├── schema.js             — DDL definitions for 20 tables & 25 indexes
 │   │   └── seed.js               — Initial catalog and account seeder
 │   ├── middleware/
 │   │   ├── auth.js               — JWT auth & RBAC middleware
 │   │   ├── validate.js           — Joi request validation schemas
 │   │   ├── errorHandler.js       — Global error & 404 handler
 │   │   └── rateLimiter.js        — Rate limiters (General, Auth, AI)
-│   ├── routes/                   — 18 REST Route Modules
-│   ├── services/                 — 16 Business Logic Services
+│   ├── routes/                   — 19 REST Route Modules
+│   ├── services/                 — 17 Business Logic Services
 │   ├── utils/
-│   │   ├── constants.js          — Roles, Statuses, Audit Actions, Entity Types
+│   │   ├── constants.js          — Roles, Fine Policies, Badges, Audit Actions
 │   │   └── helpers.js            — UUID, formatting, pagination, math utilities
 │   └── cron/
 │       └── jobs.js               — Automated background scheduled sweeps
@@ -452,7 +506,7 @@ Userfacet-Assignment/
 │   └── library.db                — Shared SQLite Database
 │
 └── tests/
-    └── api.test.js               — Full 25-Step Automated Verification Suite
+    └── api.test.js               — Full 30-Step Automated Verification Suite
 ```
 
 ---

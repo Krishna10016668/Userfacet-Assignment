@@ -14,7 +14,7 @@ class BookService {
    * @param {Object} query - Query parameters
    * @returns {Object} Books array and pagination metadata
    */
-  getAllBooks({ page = 1, limit = 10, sort_by = 'created_at', sort_order = 'DESC', category_id, author_id, language, available }) {
+  getAllBooks({ page = 1, limit = 10, sort_by = 'created_at', sort_order = 'DESC', category_id, author_id, language, available, tag }) {
     const db = getDb();
     const { offset, limit: sqlLimit } = calculatePagination(page, limit);
     
@@ -35,6 +35,14 @@ class BookService {
     }
     if (available === 'true') {
       whereClause += ' AND b.available_copies > 0';
+    }
+    if (tag) {
+      whereClause += ` AND b.id IN (
+        SELECT bt.book_id FROM book_tags bt 
+        JOIN tags t ON bt.tag_id = t.id 
+        WHERE t.slug = ? OR t.name = ? OR t.id = ?
+      )`;
+      params.push(tag, tag, tag);
     }
     
     // Validate sort fields to prevent SQL injection
@@ -87,10 +95,18 @@ class BookService {
       throw new AppError('Book not found', 404);
     }
     
-    // Add extra stats like reviews count
+    // Add extra stats like reviews count and attached tags
     const stats = db.prepare('SELECT COUNT(*) as review_count, AVG(rating) as avg_rating FROM reviews WHERE book_id = ?').get(id);
     book.review_count = stats.review_count || 0;
     book.avg_rating = stats.avg_rating ? parseFloat(stats.avg_rating.toFixed(2)) : null;
+
+    const tags = db.prepare(`
+      SELECT t.id, t.name, t.slug 
+      FROM tags t 
+      JOIN book_tags bt ON t.id = bt.tag_id 
+      WHERE bt.book_id = ?
+    `).all(id);
+    book.tags = tags || [];
     
     return book;
   }

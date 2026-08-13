@@ -85,6 +85,14 @@ class ReadingProgressService {
       );
     }
 
+    // Automatically record activity for streaks and milestone badges
+    try {
+      const gamificationService = require('./gamification.service');
+      gamificationService.recordUserActivity(userId, 'READING_PROGRESS', { reading_speed_pph: readingSpeedPph });
+    } catch (e) {
+      console.error('[Gamification] Error recording activity:', e.message);
+    }
+
     return this.getProgressByBorrowId(borrowId);
   }
 

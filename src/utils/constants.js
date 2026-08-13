@@ -102,6 +102,52 @@ const ENTITY_TYPE = {
   AUTHOR: 'AUTHOR'
 };
 
+/**
+ * Real-World Fine Policy Constants
+ */
+const FINE_POLICY = {
+  GRACE_PERIOD_DAYS: 3,        // 3-day grace period where fine is ₹0
+  TIER_1_DAILY_RATE: 2.0,       // ₹2.00/day for days 4 to 10
+  TIER_2_DAILY_RATE: 5.0,       // ₹5.00/day for days 11 and beyond
+  DEFAULT_BOOK_VALUE_CAP: 250.0 // Default maximum fine ceiling if book price is unstated
+};
+
+/**
+ * Gamification Milestone Badge Definitions
+ */
+const BADGE_DEFINITIONS = {
+  NIGHT_OWL: {
+    key: 'NIGHT_OWL',
+    name: 'Night Owl Reader',
+    description: 'Logged reading activity or borrowed a book between 11 PM and 4 AM.',
+    icon: '🦉'
+  },
+  SPEED_DEMON: {
+    key: 'SPEED_DEMON',
+    name: 'Speed Demon',
+    description: 'Achieved a reading velocity of 80+ pages per hour.',
+    icon: '⚡'
+  },
+  GENRE_EXPLORER: {
+    key: 'GENRE_EXPLORER',
+    name: 'Genre Explorer',
+    description: 'Borrowed books across 3 or more distinct literary genres.',
+    icon: '🌍'
+  },
+  AVID_READER: {
+    key: 'AVID_READER',
+    name: 'Avid Reader',
+    description: 'Successfully completed and returned 3 or more books on time.',
+    icon: '📚'
+  },
+  STREAK_CHAMPION: {
+    key: 'STREAK_CHAMPION',
+    name: 'Streak Champion',
+    description: 'Maintained an active consecutive reading streak of 3+ days.',
+    icon: '🔥'
+  }
+};
+
 module.exports = {
   ROLES,
   BORROW_STATUS,
@@ -111,5 +157,7 @@ module.exports = {
   SUMMARY_TYPE,
   HTTP_STATUS,
   AUDIT_ACTION,
-  ENTITY_TYPE
+  ENTITY_TYPE,
+  FINE_POLICY,
+  BADGE_DEFINITIONS
 };

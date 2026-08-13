@@ -27,6 +27,9 @@ const auditRoutes = require('./routes/audit.routes');
 const insightsRoutes = require('./routes/insights.routes');
 const moodMatchRoutes = require('./routes/moodMatch.routes');
 const curriculumRoutes = require('./routes/curriculum.routes');
+const tagRoutes = require('./routes/tag.routes');
+const gamificationRoutes = require('./routes/gamification.routes');
+const bookClubRoutes = require('./routes/bookClub.routes');
 
 const app = express();
 
@@ -64,6 +67,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/books/ai-match-mood', moodMatchRoutes);
 app.use('/api/books', bookRoutes);
+app.use('/api/users', gamificationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/borrows', borrowRoutes);
 app.use('/api/reservations', reservationRoutes);
@@ -73,6 +77,8 @@ app.use('/api/authors', authorRoutes);
 app.use('/api/fines', fineRoutes);
 app.use('/api/reading-lists', readingListRoutes);
 app.use('/api/reading-lists', curriculumRoutes);
+app.use('/api/tags', tagRoutes);
+app.use('/api/clubs', bookClubRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/exports', exportRoutes);
@@ -93,11 +99,15 @@ app.listen(PORT, () => {
   console.log('  /api/books/ai-match-mood');
   console.log('  /api/books');
   console.log('  /api/users');
+  console.log('  /api/users/my-badges');
+  console.log('  /api/users/reading-streak');
   console.log('  /api/borrows');
   console.log('  /api/reservations');
   console.log('  /api/reviews');
   console.log('  /api/categories');
   console.log('  /api/authors');
+  console.log('  /api/tags');
+  console.log('  /api/clubs');
   console.log('  /api/fines');
   console.log('  /api/reading-lists');
   console.log('  /api/notifications');

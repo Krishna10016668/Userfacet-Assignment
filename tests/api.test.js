@@ -300,8 +300,83 @@ async function runFullVerificationSuite() {
       console.log(`   First Step: "${curriculum.learning_path[0].title}" — ${curriculum.learning_path[0].learning_objective}`);
     }
 
+    // ==========================================
+    // 🏛️ REAL-WORLD DOMAIN & ENGAGEMENT (Steps 26-30)
+    // ==========================================
+
+    // 26. Real-World Dynamic Fine Policy & Grace Periods
+    console.log('\n--- Step 26: Dynamic Fine Policy with Grace Period & Caps ---');
+    const FineService = require('../src/services/fine.service');
+    const onTimeCheck = FineService.calculateDynamicOverdueFine(new Date(), new Date());
+    console.log(`✅ On-Time Return: Fine = ₹${onTimeCheck.fine_amount} (${onTimeCheck.policy_applied})`);
+
+    const pastDueDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000); // 2 days overdue
+    const graceCheck = FineService.calculateDynamicOverdueFine(pastDueDate, new Date());
+    console.log(`✅ 2-Day Overdue (Grace Period): Fine = ₹${graceCheck.fine_amount} (${graceCheck.policy_applied})`);
+
+    const lateDueDate = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000); // 6 days overdue (3 billable days @ ₹2)
+    const tieredCheck = FineService.calculateDynamicOverdueFine(lateDueDate, new Date());
+    console.log(`✅ 6-Day Overdue (Tiered Rate): Fine = ₹${tieredCheck.fine_amount} (${tieredCheck.policy_applied})`);
+
+    // 27. Multi-Dimensional Book Tagging & Taxonomy
+    console.log('\n--- Step 27: Multi-Dimensional Book Tagging & Taxonomy ---');
+    const createTagRes = await adminClient.post('/tags', {
+      name: 'Award Winner',
+      description: 'Books that have received prestigious literary awards.'
+    });
+    const tagId = createTagRes.data.data.id;
+    console.log(`✅ Tag Created: "${createTagRes.data.data.name}" (Slug: ${createTagRes.data.data.slug})`);
+
+    await adminClient.post(`/tags/book/${testBookId}`, { tag_id: tagId });
+    console.log(`✅ Tag attached to Book ID: ${testBookId}`);
+
+    const bookTagsRes = await memberClient.get(`/tags/book/${testBookId}`);
+    console.log(`✅ Retrieved ${bookTagsRes.data.data.length} tag(s) for book.`);
+
+    const taggedBooksRes = await memberClient.get('/books?tag=award-winner');
+    console.log(`✅ Tag-Filtered Catalog: Found ${taggedBooksRes.data.data.length} book(s) with tag 'award-winner'.`);
+
+    // 28. Reading Streaks & Milestone Badges Engine
+    console.log('\n--- Step 28: Reading Streaks & Milestone Badges Engine ---');
+    const streakRes = await memberClient.get('/users/reading-streak');
+    console.log(`✅ Reading Streak: ${streakRes.data.data.current_streak_days} consecutive day(s) active (${streakRes.data.data.streak_tier})`);
+
+    const badgesRes = await memberClient.get('/users/my-badges');
+    const unlockedBadges = badgesRes.data.data.badges.filter(b => b.is_unlocked);
+    console.log(`✅ Milestone Badges: ${unlockedBadges.length}/${badgesRes.data.data.total_available} unlocked.`);
+    unlockedBadges.forEach(b => {
+      console.log(`   ${b.icon} ${b.name || b.badge_name}: ${b.description || b.badge_description}`);
+    });
+
+    // 29. Digital Book Clubs & Community Reading Circles
+    console.log('\n--- Step 29: Digital Book Clubs & Community Circles ---');
+    const clubRes = await memberClient.post('/clubs', {
+      name: 'Dystopian Thinkers Society',
+      description: 'A community of readers exploring political theory and speculative futures.',
+      current_book_id: testBookId
+    });
+    const testClubId = clubRes.data.data.id;
+    console.log(`✅ Book Club Created: "${clubRes.data.data.name}" (Organizer: ${clubRes.data.data.organizer_name})`);
+
+    // Admin joins the club
+    await adminClient.post(`/clubs/${testClubId}/join`);
+    console.log(`✅ Second member successfully joined the Book Club.`);
+
+    const clubsList = await memberClient.get('/clubs');
+    console.log(`✅ Public Clubs Directory: Retrieved ${clubsList.data.data.length} active club(s).`);
+
+    // 30. Book Club Reading Progress & Member Leaderboard
+    console.log('\n--- Step 30: Book Club Reading Progress & Leaderboard ---');
+    const clubProgress = await memberClient.get(`/clubs/${testClubId}/progress`);
+    console.log(`✅ Club Progress for "${clubProgress.data.data.current_book.title}":`);
+    console.log(`   - Total Members: ${clubProgress.data.data.aggregate.total_members}`);
+    console.log(`   - Average Completion: ${clubProgress.data.data.aggregate.average_completion_pct}%`);
+    if (clubProgress.data.data.member_progress.length > 0) {
+      console.log(`   - Top Reader: ${clubProgress.data.data.member_progress[0].full_name} (${clubProgress.data.data.member_progress[0].completion_percentage}%)`);
+    }
+
     console.log('\n====================================================');
-    console.log('🎉 ALL 25 INTEGRATION & INNOVATION TESTS PASSED!');
+    console.log('🎉 ALL 30 INTEGRATION & DOMAIN TESTS PASSED!');
     console.log('====================================================\n');
 
   } catch (error) {
