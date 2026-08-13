@@ -1,0 +1,115 @@
+/**
+ * User roles
+ */
+const ROLES = {
+  MEMBER: 'MEMBER',
+  LIBRARIAN: 'LIBRARIAN',
+  ADMIN: 'ADMIN'
+};
+
+/**
+ * Status of a borrowed book
+ */
+const BORROW_STATUS = {
+  ACTIVE: 'ACTIVE',
+  RETURNED: 'RETURNED',
+  OVERDUE: 'OVERDUE'
+};
+
+/**
+ * Status of a reservation
+ */
+const RESERVATION_STATUS = {
+  PENDING: 'PENDING',
+  FULFILLED: 'FULFILLED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED'
+};
+
+/**
+ * Status of a fine
+ */
+const FINE_STATUS = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  WAIVED: 'WAIVED'
+};
+
+/**
+ * Types of notifications
+ */
+const NOTIFICATION_TYPE = {
+  DUE_REMINDER: 'DUE_REMINDER',
+  OVERDUE: 'OVERDUE',
+  RESERVATION_READY: 'RESERVATION_READY',
+  FINE: 'FINE',
+  SYSTEM: 'SYSTEM'
+};
+
+/**
+ * Types of AI book summaries
+ */
+const SUMMARY_TYPE = {
+  BRIEF: 'brief',
+  DETAILED: 'detailed',
+  CHAPTER_WISE: 'chapter_wise'
+};
+
+/**
+ * Standard HTTP Status Codes
+ */
+const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_ERROR: 500
+};
+
+/**
+ * Types of Audit Actions
+ */
+const AUDIT_ACTION = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  BORROW: 'BORROW',
+  RETURN: 'RETURN',
+  RENEW: 'RENEW',
+  FINE_PAY: 'FINE_PAY',
+  FINE_WAIVE: 'FINE_WAIVE',
+  BULK_IMPORT: 'BULK_IMPORT',
+  LOGIN: 'LOGIN',
+  PASSWORD_CHANGE: 'PASSWORD_CHANGE'
+};
+
+/**
+ * Entity Types for Audit Log
+ */
+const ENTITY_TYPE = {
+  BOOK: 'BOOK',
+  USER: 'USER',
+  BORROW: 'BORROW',
+  FINE: 'FINE',
+  RESERVATION: 'RESERVATION',
+  REVIEW: 'REVIEW',
+  READING_LIST: 'READING_LIST',
+  CATEGORY: 'CATEGORY',
+  AUTHOR: 'AUTHOR'
+};
+
+module.exports = {
+  ROLES,
+  BORROW_STATUS,
+  RESERVATION_STATUS,
+  FINE_STATUS,
+  NOTIFICATION_TYPE,
+  SUMMARY_TYPE,
+  HTTP_STATUS,
+  AUDIT_ACTION,
+  ENTITY_TYPE
+};
