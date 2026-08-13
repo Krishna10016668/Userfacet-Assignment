@@ -6,6 +6,11 @@ from flask_cors import CORS
 import config
 from routes.summary_routes import ai_blueprint
 from routes.insights_routes import insights_blueprint
+from routes.ask_book_routes import ask_book_blueprint
+from routes.mood_match_routes import mood_match_blueprint
+from routes.quiz_routes import quiz_blueprint
+from routes.review_digest_routes import review_digest_blueprint
+from routes.curriculum_routes import curriculum_blueprint
 
 app = Flask(__name__)
 # Enable CORS for the application
@@ -14,6 +19,11 @@ CORS(app)
 # Register the blueprints
 app.register_blueprint(ai_blueprint, url_prefix='/ai')
 app.register_blueprint(insights_blueprint, url_prefix='/ai')
+app.register_blueprint(ask_book_blueprint, url_prefix='/ai')
+app.register_blueprint(mood_match_blueprint, url_prefix='/ai')
+app.register_blueprint(quiz_blueprint, url_prefix='/ai')
+app.register_blueprint(review_digest_blueprint, url_prefix='/ai')
+app.register_blueprint(curriculum_blueprint, url_prefix='/ai')
 
 # Global error handlers
 @app.errorhandler(400)

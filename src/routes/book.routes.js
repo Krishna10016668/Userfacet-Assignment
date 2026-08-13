@@ -110,6 +110,52 @@ router.get('/:id/also-borrowed', optionalAuth, async (req, res, next) => {
 });
 
 /**
+ * @route POST /api/books/:id/ask
+ * @desc Ask a question about a book
+ * @access Private
+ */
+router.post('/:id/ask', authenticate, aiLimiter, async (req, res, next) => {
+  try {
+    if (!req.body.question) {
+      return res.status(400).json(buildResponse(false, null, 'Question is required'));
+    }
+    const result = await bookService.askBookQuestion(req.params.id, req.body.question);
+    res.status(200).json(buildResponse(true, result, 'Answer retrieved successfully'));
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * @route GET /api/books/:id/ai-quiz
+ * @desc Get an AI generated quiz for a book
+ * @access Private
+ */
+router.get('/:id/ai-quiz', authenticate, aiLimiter, async (req, res, next) => {
+  try {
+    const numQuestions = req.query.questions ? parseInt(req.query.questions, 10) : 5;
+    const result = await bookService.getBookQuiz(req.params.id, numQuestions);
+    res.status(200).json(buildResponse(true, result, 'Quiz retrieved successfully'));
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * @route GET /api/books/:id/ai-reviews-digest
+ * @desc Get an AI generated digest of book reviews
+ * @access Public (Optional Auth)
+ */
+router.get('/:id/ai-reviews-digest', optionalAuth, async (req, res, next) => {
+  try {
+    const result = await bookService.getReviewDigest(req.params.id);
+    res.status(200).json(buildResponse(true, result, 'Review digest retrieved successfully'));
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * @route POST /api/books
  * @desc Create a new book
  * @access Private (Librarian/Admin)

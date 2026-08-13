@@ -141,3 +141,76 @@ Output MUST be a valid JSON object with the exact keys:
   "ai_curator_message": "..."
 }}
 Do not include any text outside the JSON object."""
+
+ASK_BOOK_SYSTEM_PROMPT = """You are an expert literary analyst who answers questions about specific books without major spoilers."""
+
+def get_ask_book_prompt(title: str, author: str, description: str, category: str, question: str) -> str:
+    return f"""Book: "{title}" by {author}
+Category: {category}
+Description: {description}
+
+User Question: {question}
+Please answer the user's question clearly and concisely based on the book's context, without revealing major spoilers."""
+
+MOOD_MATCH_SYSTEM_PROMPT = """You are an expert librarian matching reader moods/vibes to books."""
+
+def get_mood_match_prompt(mood_query: str, catalog: list) -> str:
+    catalog_str = "\n".join([f"- ID: {b.get('id')}, Title: \"{b.get('title')}\", Author: {b.get('author')}, Category: {b.get('category')}" for b in catalog])
+    return f"""Reader's mood/vibe query: "{mood_query}"
+
+Available Catalog:
+{catalog_str}
+
+Match the reader's mood to the best books in the catalog. Select up to 5 best matches.
+Output MUST be a valid JSON array of objects with the exact keys:
+[{{"book_id": "...", "title": "...", "match_reason": "..."}}]
+Do not include any text outside the JSON array."""
+
+QUIZ_SYSTEM_PROMPT = """You are an educational quiz creator for book comprehension."""
+
+def get_quiz_prompt(title: str, author: str, description: str, category: str, num_questions: int) -> str:
+    return f"""Create a {num_questions}-question multiple choice comprehension quiz for the book "{title}" by {author}.
+Category: {category}
+Context Description: {description}
+
+Output MUST be a valid JSON array of objects with the exact keys:
+[{{"question": "...", "options": ["A", "B", "C", "D"], "correct_answer": "A", "explanation": "..."}}]
+Do not include any text outside the JSON array."""
+
+REVIEW_DIGEST_SYSTEM_PROMPT = """You are a literary critic analyzing crowd-sourced reviews."""
+
+def get_review_digest_prompt(title: str, author: str, reviews: list) -> str:
+    reviews_str = "\n".join([f"- Rating: {r.get('rating')}/5, Review: {r.get('review_text')}" for r in reviews])
+    return f"""Analyze the following reader reviews for "{title}" by {author}:
+{reviews_str}
+
+Output MUST be a valid JSON object with the exact keys:
+{{
+  "overall_sentiment": "...",
+  "sentiment_score": 85,
+  "key_praise_points": ["...", "..."],
+  "common_critiques": ["...", "..."],
+  "executive_summary": "...",
+  "recommendation_level": "Highly Recommended"
+}}
+Do not include any text outside the JSON object."""
+
+CURRICULUM_SYSTEM_PROMPT = """You are an educational curriculum designer."""
+
+def get_curriculum_prompt(goal: str, catalog: list, num_books: int) -> str:
+    catalog_str = "\n".join([f"- ID: {b.get('id')}, Title: \"{b.get('title')}\", Author: {b.get('author')}, Category: {b.get('category')}" for b in catalog])
+    return f"""Design a learning curriculum based on this goal: "{goal}"
+
+Select up to {num_books} books from the following catalog to form a cohesive learning path:
+{catalog_str}
+
+Output MUST be a valid JSON object with the exact keys:
+{{
+  "curriculum_title": "...",
+  "description": "...",
+  "learning_path": [
+    {{"order": 1, "book_id": "...", "title": "...", "learning_objective": "...", "key_takeaway": "..."}}
+  ],
+  "expected_outcome": "..."
+}}
+Do not include any text outside the JSON object."""

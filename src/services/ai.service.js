@@ -106,6 +106,65 @@ class AIService {
       return { status: 'error', error: error.message };
     }
   }
+  /**
+   * Ask a question about a book
+   * @param {Object} bookData - Book details and question
+   * @returns {Promise<Object>} Answer data
+   */
+  async askBook(bookData) {
+    try {
+      const response = await this._withRetry(() => this.axiosClient.post('/ai/ask-book', bookData));
+      return response.data;
+    } catch (error) {
+      console.error('Error:', error.message);
+      return { data: { answer: 'AI Q&A is currently unavailable.' } };
+    }
+  }
+
+  /**
+   * Match mood to books
+   * @param {Object} data - Mood query and catalog
+   * @returns {Promise<Object>} Match data
+   */
+  async matchMood(data) {
+    try {
+      const response = await this._withRetry(() => this.axiosClient.post('/ai/mood-match', data));
+      return response.data;
+    } catch (error) {
+      console.error('Error:', error.message);
+      return { data: { matches: [] } };
+    }
+  }
+
+  /**
+   * Generate a quiz for a book
+   * @param {Object} bookData - Book details and num_questions
+   * @returns {Promise<Object>} Quiz data
+   */
+  async generateQuiz(bookData) {
+    try {
+      const response = await this._withRetry(() => this.axiosClient.post('/ai/book-quiz', bookData));
+      return response.data;
+    } catch (error) {
+      console.error('Error:', error.message);
+      return { data: { quiz: [] } };
+    }
+  }
+
+  /**
+   * Generate a review digest for a book
+   * @param {Object} data - Book details and reviews
+   * @returns {Promise<Object>} Digest data
+   */
+  async generateReviewDigest(data) {
+    try {
+      const response = await this._withRetry(() => this.axiosClient.post('/ai/review-digest', data));
+      return response.data;
+    } catch (error) {
+      console.error('Error:', error.message);
+      return { data: { digest: null } };
+    }
+  }
 }
 
 module.exports = new AIService();

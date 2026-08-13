@@ -7,7 +7,7 @@
 [![Flask](https://img.shields.io/badge/Flask-Microservice-000000.svg?style=flat&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A production-ready, dual-service backend architecture engineered for digital libraries. The system combines an **Express.js API Gateway** managing high-throughput CRUD and business logic with a **Python Flask AI Microservice** powering intelligent book analysis, semantic recommendation algorithms, literary personality profiling, and velocity-based reading progress analytics.
+A production-ready, dual-service backend architecture engineered for digital libraries. The system combines an **Express.js API Gateway** managing high-throughput CRUD and business logic with a **Python Flask AI Microservice** powering intelligent book analysis, semantic recommendation algorithms, literary personality profiling, interactive conversational Q&A, natural language mood matchmaking, comprehension quiz generation, review sentiment digests, reading curriculum design, and velocity-based reading progress analytics.
 
 ---
 
@@ -18,12 +18,12 @@ A production-ready, dual-service backend architecture engineered for digital lib
 3. [Quick Start & Installation](#-quick-start--installation)
 4. [User Roles & Security (RBAC)](#-user-roles--security-rbac)
 5. [Core Domain Features](#-core-domain-features)
-6. [🌟 5 Innovative & Differentiating Features](#-5-innovative--differentiating-features)
+6. [🌟 10 Advanced & Innovative Features](#-10-advanced--innovative-features)
 7. [AI Microservice & Caching Engine](#-ai-microservice--caching-engine)
 8. [Automated Background Cron Scheduler](#-automated-background-cron-scheduler)
 9. [Comprehensive REST API Reference](#-comprehensive-rest-api-reference)
 10. [Database Schema & Performance (14 Tables)](#-database-schema--performance-14-tables)
-11. [Automated Integration Test Suite (20 Steps)](#-automated-integration-test-suite-20-steps)
+11. [Automated Integration Test Suite (25 Steps)](#-automated-integration-test-suite-25-steps)
 12. [Project Structure Map](#-project-structure-map)
 
 ---
@@ -42,7 +42,8 @@ The application is structured into two decoupled microservices sharing a common 
 │              NODE.JS REST API GATEWAY & CORE (Port 3000)                │
 │  ├── Security: Helmet, CORS, Rate Limiters, Bcrypt (12 Rounds), JWT     │
 │  ├── Controllers & Services: Books, Borrows, Returns, Fines, Users      │
-│  ├── Innovative Modules: Progress Tracker, Audit Trail, Bulk CSV        │
+│  ├── Advanced Modules: Progress Tracker, Audit Trail, Bulk CSV Importer │
+│  ├── AI Gateways: Mood Matcher, Ask Book, Quiz, Reviews Digest, Syllabus│
 │  ├── Data Validation: Joi Schema Layer on all Payloads                  │
 │  └── Automated Jobs: Node-Cron Overdue & Reservation Sweeps             │
 └───────────────────┬─────────────────────────────────▲───────────────────┘
@@ -51,8 +52,11 @@ The application is structured into two decoupled microservices sharing a common 
 ┌─────────────────────────────────────────────────────┴───────────────────┐
 │               PYTHON FLASK AI MICROSERVICE (Port 5000)                  │
 │  ├── Prompt Engineering: GPT-4o-mini via UserFacet AI API               │
-│  ├── Summary Engines: Brief, Detailed, and Chapter-Wise Formats         │
-│  ├── Discovery: Semantic Book Recs & Reader Personality Insights        │
+│  ├── Multi-Format Summaries: Brief, Detailed, and Chapter-Wise          │
+│  ├── Semantic Discovery: Recommendations & Reader Personality Profiling │
+│  ├── Conversational & NLP: Ask-the-Book Q&A & Mood-Based Matchmaker     │
+│  ├── Assessment & Analytics: Quiz Generator & Review Sentiment Digest   │
+│  ├── Educational Planning: Step-by-Step Reading Curriculum Generator    │
 │  ├── Resiliency: SQLite 30-Day Cache Layer & Heuristic Fallbacks        │
 │  └── Diagnostics: Health and Quota Usage Monitor Endpoints              │
 └───────────────────┬─────────────────────────────────▲───────────────────┘
@@ -133,8 +137,9 @@ AI_API_BASE_URL=https://ai-api.userfacet.com
 ### Step-by-Step Setup
 
 ```bash
-# 1. Clone or extract the repository
-cd "e:\Userfacet Assignment"
+# 1. Clone the repository
+git clone https://github.com/Krishna10016668/Userfacet-Assignment.git
+cd Userfacet-Assignment
 
 # 2. Install Node.js backend dependencies
 npm install
@@ -176,77 +181,65 @@ The system implements Role-Based Access Control enforced by the `authorize(...ro
 | :--- | :--- | :--- | :--- |
 | **ADMIN** | `admin@library.com` | `admin123` | Full unrestricted administrative access. User deactivation, fine waivers, enterprise audit log inspection, transactional bulk CSV imports. |
 | **LIBRARIAN** | `librarian@library.com` | `lib123` | Inventory management. Adding/updating books, author/category management, overdue borrowing reports, circulation analytics. |
-| **MEMBER** | `member@library.com` | `member123` | Patron access. Catalog search, borrowing, reading progress tracking, AI summaries/insights, reviews (with verification gate), reading lists. |
+| **MEMBER** | `member@library.com` | `member123` | Patron access. Catalog search, borrowing, reading progress tracking, AI summaries/insights/Q&A/mood-matching/quizzes, reviews (with verification gate), reading lists. |
 
 ---
 
-## 📚 Core Domain Features
-
-1. **Authentication & Identity**: JWT-based stateless tokens, password hashing via `bcryptjs` with 12 salt rounds, refresh token rotation.
-2. **Catalog Management**: Multi-criteria search, author and category hierarchical trees, soft deletes (`is_deleted` flag), copy availability counting.
-3. **Circulation & Borrowing Engine**:
-   - Limit of max active loans per user (`max_books_allowed`).
-   - Unpaid fine check (patrons with pending fines are blocked from new checkouts).
-   - Automated stock decrementation on checkout, incrementation on return.
-4. **FIFO Reservation Queue**:
-   - Patrons can reserve out-of-stock titles.
-   - On book return, the system auto-promotes the next in queue with a 48-hour expiration window.
-5. **Dynamic Overdue Fines**:
-   - Configurable fine rate per day (default ₹2/day).
-   - Automatic fine assessment on late return or via hourly background cron sweeps.
-6. **Reviews with Borrow Verification Gate**:
-   - Patrons can only review a book if they have actively or previously borrowed it.
-   - Submitting or updating a review dynamically recalculates the book's `avg_rating`.
-7. **Personal & Public Reading Lists**:
-   - Users can create custom collections, order book positions, and publish lists to the community.
-8. **Automated Notification Dispatcher**:
-   - In-app notification creation for overdue warnings, due date reminders, and reservation ready alerts.
-
----
-
-## 🌟 5 Innovative & Differentiating Features
+## 🌟 10 Advanced & Innovative Features
 
 ### 1. 📖 Reading Progress Tracker & Velocity/ETA Forecaster
-- **What it does**: Allows readers to log page-by-page progress during active borrows.
-- **Velocity Algorithm**: Calculates reading speed in **Pages Per Hour (PPH)** based on elapsed time:
+- **Live Velocity Calculation**: Measures real-time reading speed in **Pages Per Hour (PPH)**:
   $$\text{Reading Velocity} = \frac{\Delta \text{Pages}}{\text{Elapsed Hours}}$$
 - **ETA Forecasting**: Predicts exact estimated hours required to finish the book:
   $$\text{ETA (Hours)} = \frac{\text{Total Pages} - \text{Current Page}}{\text{Reading Velocity (PPH)}}$$
-- **Endpoints**:
-  - `PUT /api/reading-progress/:borrowId` — Update current page, notes, and compute ETA.
-  - `GET /api/reading-progress/my-stats` — Personal analytics dashboard (total pages read, average speed, active books).
+- **Endpoints**: `PUT /api/reading-progress/:borrowId`, `GET /api/reading-progress/my-stats`
 
 ### 2. 🛡️ Enterprise Audit Trail System
-- **What it does**: Comprehensive, immutable accountability logging for every sensitive operation (book creation/modification/deletion, checkouts, returns, renewals, fine waivers, and bulk imports).
+- **Accountability Logging**: Automatically records every administrative action (book creation, updates, deletes, checkout, returns, fine waivers, and bulk imports).
 - **Security Context**: Captures `actor_id`, `actor_role`, `action`, `entity_type`, `entity_id`, structured JSON payload changes, and IP addresses.
-- **Endpoints**:
-  - `GET /api/audit-log` — Filter audit records by actor, date range, entity type, and action.
-  - `GET /api/audit-log/:entityType/:entityId` — Retrieve complete chronological timeline of an entity.
+- **Endpoints**: `GET /api/audit-log`, `GET /api/audit-log/:entityType/:entityId`
 
 ### 3. 🧠 AI-Powered Smart Reading Insights & Reader Persona
-- **What it does**: Analyzes a patron's lifetime borrowing history through an AI literary psychologist engine to produce a personalized reading profile.
-- **AI Output**: Generates a creative "Reader Persona" (e.g. *"Dystopian Thinker & Classicist"*), identifies thematic interests, and curates unread recommendations from the catalog.
-- **Endpoints**:
-  - `GET /api/insights/my-profile` — Patron's personalized reading intelligence report.
-  - `POST /ai/reading-insights` — Python microservice profiling endpoint.
+- **Literary Personality Profiling**: Analyzes lifetime borrowing patterns through an AI literary psychologist engine to produce a creative "Reader Persona" (e.g. *"Dystopian Thinker & Classicist"*).
+- **Curated Next Reads**: AI curator selects unread books from the available catalog tailored to the reader's intellectual curiosity.
+- **Endpoints**: `GET /api/insights/my-profile`, `POST /ai/reading-insights`
 
 ### 4. 📊 Collaborative Filtering ("Readers Also Borrowed")
-- **What it does**: Discovers books frequently checked out together by other patrons using a pure SQL co-occurrence recommendation algorithm.
-- **Algorithmic Logic**:
-  1. Finds all users who checked out target book $B$.
-  2. Finds all *other* books checked out by those same users.
-  3. Ranks candidates by co-occurrence frequency ($\text{COUNT}(\text{DISTINCT user\_id})$).
-  4. Gracefully falls back to top-rated titles in the same category if co-borrow data is sparse.
-- **Endpoint**:
-  - `GET /api/books/:id/also-borrowed` — Returns co-borrowed book suggestions with match reasons.
+- **SQL Co-Occurrence Engine**: Discovers books frequently checked out together by other patrons across the library using pure SQL co-occurrence matrices.
+- **Cold-Start Fallback**: Gracefully falls back to category-based matching when borrowing data is sparse.
+- **Endpoint**: `GET /api/books/:id/also-borrowed`
 
 ### 5. 📬 Transactional Bulk CSV Book Importer
-- **What it does**: Enables administrative batch onboarding of hundreds of books from CSV files with full ACID transaction safety.
-- **Auto-Resolution**: Automatically checks if authors or categories exist; if missing, generates them on the fly.
-- **Validation**: Performs strict ISBN-10/13 checksum validation, detects duplicates, and returns a granular row-by-row success/failure report.
-- **Endpoints**:
-  - `POST /api/exports/import/books` — Upload raw CSV or `{ "csv": "..." }` payload.
-  - `GET  /api/exports/import/template` — Download standard import CSV template.
+- **ACID Transaction Safety**: Bulk imports hundreds of books in a single atomic transaction.
+- **Auto Reference Resolution**: Automatically resolves or creates missing author and category records on the fly.
+- **Endpoints**: `POST /api/exports/import/books`, `GET /api/exports/import/template`
+
+### 6. 💬 "Ask the Book" — Interactive AI Book Q&A
+- **Conversational Exploration**: Patrons can ask questions directly to any book in the catalog before borrowing or while reading.
+- **Context-Aware Answers**: Generates answers grounded in the book's narrative context without giving away major spoilers.
+- **Endpoint**: `POST /api/books/:id/ask`
+
+### 7. 🎭 AI "Mood & Vibe Matchmaker" (Natural Language Discovery)
+- **Freeform Emotional Search**: Patrons search using natural language emotional queries (e.g., *"I want something uplifting and inspiring set in the 1900s"*).
+- **Intelligent Semantic Ranking**: Evaluates entire catalog against the reader's vibe and provides tailored match explanations.
+- **Endpoint**: `POST /api/books/ai-match-mood`
+
+### 8. 📝 AI Book Comprehension Quiz & Trivia Generator
+- **Active Learning**: Dynamically generates 3–5 question multiple-choice comprehension quizzes with detailed explanations.
+- **Gamification**: Tests understanding of themes, character motivations, and pivotal plot points.
+- **Endpoint**: `GET /api/books/:id/ai-quiz`
+
+### 9. 📊 AI Community Review Digest & Sentiment Analysis
+- **Executive Review Digest**: Synthesizes all user reviews into an AI sentiment analysis breakdown:
+  - Overall Sentiment & Percentage Score
+  - Key Praise Highlights & Common Reader Critiques
+  - Executive Summary & Recommendation Tier
+- **Endpoint**: `GET /api/books/:id/ai-reviews-digest`
+
+### 10. 🎓 AI Personalized Reading Curriculum Generator
+- **Learning Syllabus Builder**: Turns learning goals (e.g., *"I want to understand dystopian political philosophy"*) into a structured, multi-book reading curriculum from catalog stock.
+- **Step-by-Step Path**: Includes learning objectives, key takeaways, and difficulty progression.
+- **Endpoint**: `POST /api/reading-lists/ai-curate`
 
 ---
 
@@ -298,14 +291,18 @@ Built using `node-cron` in [`src/cron/jobs.js`](file:///e:/Userfacet%20Assignmen
 | `GET` | `/api/books/search?q=...` | Public | Full-text catalog search on title, author, description |
 | `GET` | `/api/books/popular` | Public | Top borrowed books ranked by checkout frequency |
 | `GET` | `/api/books/:id` | Public | Detailed book record with review count & average rating |
+| `POST` | `/api/books/ai-match-mood` | Private | AI natural language mood & vibe book matchmaker |
 | `GET` | `/api/books/:id/summary` | Private | AI summary (`?type=brief\|detailed\|chapter_wise`) |
 | `GET` | `/api/books/:id/recommendations`| Private | AI-powered semantic book recommendations |
+| `POST` | `/api/books/:id/ask` | Private | "Ask the Book" interactive conversational AI Q&A |
+| `GET` | `/api/books/:id/ai-quiz` | Private | AI book comprehension & trivia quiz generator |
+| `GET` | `/api/books/:id/ai-reviews-digest`| Public | AI crowd-sourced review sentiment digest |
 | `GET` | `/api/books/:id/also-borrowed` | Public | Collaborative filtering co-occurrence suggestions |
 | `POST` | `/api/books` | Librarian/Admin | Create new book record |
 | `PUT` | `/api/books/:id` | Librarian/Admin | Update book record |
 | `DELETE`| `/api/books/:id` | Admin | Soft-delete book record |
 
-### Circulation, Progress & Insights
+### Circulation, Progress & Curriculum
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/borrows` | Private | Checkout book (enforces limits and fine blocks) |
@@ -317,8 +314,9 @@ Built using `node-cron` in [`src/cron/jobs.js`](file:///e:/Userfacet%20Assignmen
 | `GET` | `/api/reading-progress/:borrowId` | Private | View progress, reading speed, and ETA |
 | `GET` | `/api/reading-progress/my-stats` | Private | Reader statistics dashboard |
 | `GET` | `/api/insights/my-profile` | Private | Generate AI reader persona & recommendations |
+| `POST` | `/api/reading-lists/ai-curate` | Private | AI reading curriculum & syllabus generator |
 
-### Reservations & Reviews
+### Reservations, Reviews & Fines
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/reservations` | Private | Reserve out-of-stock book |
@@ -328,18 +326,9 @@ Built using `node-cron` in [`src/cron/jobs.js`](file:///e:/Userfacet%20Assignmen
 | `PUT` | `/api/reviews/:id` | Private | Update review rating/comment |
 | `DELETE`| `/api/reviews/:id` | Private | Delete review & recalculate book average |
 | `GET` | `/api/reviews/book/:bookId` | Public | List reviews for a book |
-
-### Fines & Reading Lists
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
 | `GET` | `/api/fines` | Private | View user fines (or all fines if Admin) |
 | `POST` | `/api/fines/:id/pay` | Private | Pay fine |
 | `POST` | `/api/fines/:id/waive` | Admin | Waive fine |
-| `POST` | `/api/reading-lists` | Private | Create personal reading list |
-| `GET` | `/api/reading-lists` | Private | List user's reading lists |
-| `GET` | `/api/reading-lists/public` | Public | Browse community public lists |
-| `POST` | `/api/reading-lists/:id/books` | Private | Add book to list |
-| `DELETE`| `/api/reading-lists/:id/books/:bookId`| Private| Remove book from list |
 
 ### Analytics, Exports & Audit
 | Method | Endpoint | Access | Description |
@@ -369,7 +358,7 @@ books (id, isbn, title, description, author_id, category_id, publication_year, p
 borrow_records (id, user_id, book_id, borrow_date, due_date, return_date, renewal_count, status, created_at)
 reservations (id, user_id, book_id, status, queue_position, reserved_at, expires_at, created_at)
 reviews (id, user_id, book_id, rating, review_text, created_at, updated_at) [UNIQUE: user_id, book_id]
-ai_summaries (id, book_id, summary_text, summary_type, token_count, created_at, expires_at) [UNIQUE: book_id, summary_type]
+ai_summaries (id, book_id, summary_type, summary_text, token_count, created_at, expires_at) [UNIQUE: book_id, summary_type]
 fines (id, user_id, borrow_record_id, amount, status, created_at, paid_at)
 reading_lists (id, user_id, name, description, is_public, created_at)
 reading_list_items (id, reading_list_id, book_id, position, added_at) [UNIQUE: reading_list_id, book_id]
@@ -380,7 +369,7 @@ audit_log (id, actor_id, actor_role, action, entity_type, entity_id, details, ip
 
 ---
 
-## 🧪 Automated Integration Test Suite (20 Steps)
+## 🧪 Automated Integration Test Suite (25 Steps)
 
 Execute the end-to-end integration test suite:
 
@@ -409,13 +398,18 @@ node tests/api.test.js
 - ✅ **Step 18**: Transactional Bulk CSV Book Import
 - ✅ **Step 19**: CSV Import Template Download
 - ✅ **Step 20**: Enterprise Audit Trail System Verification
+- ✅ **Step 21**: "Ask the Book" Interactive Conversational AI Q&A
+- ✅ **Step 22**: AI Natural Language "Mood & Vibe Matchmaker"
+- ✅ **Step 23**: AI Book Comprehension Quiz & Trivia Generator
+- ✅ **Step 24**: AI Community Review Digest & Sentiment Analysis
+- ✅ **Step 25**: AI Personalized Reading Curriculum & Syllabus Generator
 
 ---
 
 ## 📁 Project Structure Map
 
 ```text
-e:\Userfacet Assignment\
+Userfacet-Assignment/
 ├── .env                          — Environment configuration
 ├── .env.example                  — Template environment file
 ├── .gitignore                    — Git ignore configurations
@@ -437,8 +431,8 @@ e:\Userfacet Assignment\
 │   │   ├── validate.js           — Joi request validation schemas
 │   │   ├── errorHandler.js       — Global error & 404 handler
 │   │   └── rateLimiter.js        — Rate limiters (General, Auth, AI)
-│   ├── routes/                   — 16 REST Route Modules
-│   ├── services/                 — 14 Business Logic Services
+│   ├── routes/                   — 18 REST Route Modules
+│   ├── services/                 — 16 Business Logic Services
 │   ├── utils/
 │   │   ├── constants.js          — Roles, Statuses, Audit Actions, Entity Types
 │   │   └── helpers.js            — UUID, formatting, pagination, math utilities
@@ -449,13 +443,8 @@ e:\Userfacet Assignment\
 │   ├── app.py                    — Flask service entry point
 │   ├── config.py                 — Microservice configuration
 │   ├── requirements.txt          — Flask, requests, flask-cors
-│   ├── routes/
-│   │   ├── summary_routes.py     — /ai/summary, /ai/recommendations, /health
-│   │   └── insights_routes.py    — /ai/reading-insights
-│   ├── services/
-│   │   ├── summary_service.py    — AI summary generation & 30-day cache
-│   │   ├── recommendation_service.py — AI book recommendations
-│   │   └── insights_service.py   — Reader personality profiling engine
+│   ├── routes/                   — 7 Flask Blueprints
+│   ├── services/                 — 7 AI Core Service Classes
 │   └── utils/
 │       └── prompt_templates.py   — GPT-4o-mini prompt engineering templates
 │
@@ -463,7 +452,7 @@ e:\Userfacet Assignment\
 │   └── library.db                — Shared SQLite Database
 │
 └── tests/
-    └── api.test.js               — Full 20-Step Automated Verification Suite
+    └── api.test.js               — Full 25-Step Automated Verification Suite
 ```
 
 ---

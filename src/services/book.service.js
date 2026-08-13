@@ -403,6 +403,63 @@ class BookService {
       match_reason: `${b.co_borrow_count} reader(s) who checked out "${book.title}" also borrowed this book`
     }));
   }
+  /**
+   * Ask AI a question about a book
+   * @param {string} bookId - Book ID
+   * @param {string} question - User question
+   * @returns {Promise<Object>} AI response
+   */
+  async askBookQuestion(bookId, question) {
+    const book = this.getBookById(bookId);
+    return aiService.askBook({ 
+      book_id: book.id, 
+      title: book.title, 
+      description: book.description, 
+      author: book.author_name, 
+      category: book.category_name, 
+      question 
+    });
+  }
+
+  /**
+   * Generate AI quiz for a book
+   * @param {string} bookId - Book ID
+   * @param {number} numQuestions - Number of questions
+   * @returns {Promise<Object>} Quiz data
+   */
+  async getBookQuiz(bookId, numQuestions = 5) {
+    const book = this.getBookById(bookId);
+    return aiService.generateQuiz({ 
+      book_id: book.id, 
+      title: book.title, 
+      description: book.description, 
+      author: book.author_name, 
+      category: book.category_name, 
+      num_questions: numQuestions 
+    });
+  }
+
+  /**
+   * Generate AI review digest
+   * @param {string} bookId - Book ID
+   * @returns {Promise<Object>} Review digest data
+   */
+  async getReviewDigest(bookId) {
+    const book = this.getBookById(bookId);
+    const db = getDb();
+    const reviews = db.prepare('SELECT r.rating, r.review_text, u.username FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.book_id = ?').all(bookId);
+    
+    if (!reviews || reviews.length === 0) {
+      throw new AppError('No reviews found for this book', 404);
+    }
+    
+    return aiService.generateReviewDigest({ 
+      book_id: book.id, 
+      title: book.title, 
+      author: book.author_name, 
+      reviews 
+    });
+  }
 }
 
 module.exports = new BookService();

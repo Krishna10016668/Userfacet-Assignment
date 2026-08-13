@@ -25,6 +25,8 @@ const exportRoutes = require('./routes/export.routes');
 const readingProgressRoutes = require('./routes/readingProgress.routes');
 const auditRoutes = require('./routes/audit.routes');
 const insightsRoutes = require('./routes/insights.routes');
+const moodMatchRoutes = require('./routes/moodMatch.routes');
+const curriculumRoutes = require('./routes/curriculum.routes');
 
 const app = express();
 
@@ -60,6 +62,7 @@ app.get('/api/health', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/books/ai-match-mood', moodMatchRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/borrows', borrowRoutes);
@@ -69,6 +72,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/authors', authorRoutes);
 app.use('/api/fines', fineRoutes);
 app.use('/api/reading-lists', readingListRoutes);
+app.use('/api/reading-lists', curriculumRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/exports', exportRoutes);
@@ -86,6 +90,7 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Available routes:');
   console.log('  /api/auth');
+  console.log('  /api/books/ai-match-mood');
   console.log('  /api/books');
   console.log('  /api/users');
   console.log('  /api/borrows');
